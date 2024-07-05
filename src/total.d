@@ -94,7 +94,9 @@ immutable string preamble = "
 
 </table>
 
-<p>Test failures in all of <em>check-clang</em>:</p>
+<p>
+<a href='https://github.com/tbaederr/interp-tests'>Source Code</a>
+</p>
 <canvas id=\"allChart\" style=\"width:100%; max-width:900px\"></canvas>
 
 <script>
