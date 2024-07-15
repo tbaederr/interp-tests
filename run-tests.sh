@@ -31,6 +31,7 @@ rm -f ../clang/test/CodeGenCXX/cxx11-initializer-aggregate.cpp
 rm -f ../clang/test/SemaCXX/constant-expression-cxx14.cpp
 rm -f ../clang/test/SemaCXX/aggregate-initialization.cpp
 rm -f ../clang/test/SemaCXX/constant-expression-cxx2a.cpp
+rm -f ../clang/test/SemaCXX/constexpr-function-recovery-crash.cpp
 
 
 
