@@ -3,10 +3,12 @@ import std.algorithm;
 import std.array;
 import std.string;
 import std.range;
+import std.file;
 import std.conv : to;
 
 
 immutable int TABLE_LIMIT = 5;
+immutable string CLANG_TEST_BASE_DIR = "/home/tbaeder/code/llvm-project/clang/test/";
 
 
 struct TestFileData  {
@@ -23,6 +25,13 @@ string dateFromFilename(string filename) {
   return filename;
 }
 
+string loadFile(string filename) {
+  try {
+    return readText(CLANG_TEST_BASE_DIR ~ filename);
+  } catch(Throwable) {
+    return "";
+  }
+}
 
 immutable string preamble = "
 <!DOCTYPE html>
@@ -67,6 +76,16 @@ immutable string preamble = "
   }
   .slim {
     padding: 0 1em 0 1em;
+  }
+  .hardfail {
+    color: #8b0000;
+    margin-right: 0.3em;
+    font-size: 70%;
+  }
+  .note {
+    color: #00308F;
+    margin-right: 0.3em;
+    font-size: 70%;
   }
 </style>
 <body>
@@ -239,8 +258,18 @@ void main(string[] args) {
   }
 
 
+  void addSupNotes(string filename) {
+    auto contents = loadFile(filename);
+
+    if (contents.indexOf("-fexperimental-new-constant-interpreter") != -1)
+      writeln("<sup class='hardfail'>[Explicit Test]</sup>");
+    if (contents.indexOf("__builtin_constant_p") != -1)
+      writeln("<sup class='note'>[builtin_constant_p]</sup>");
+    if (contents.indexOf("__builtin_bit_cast") != -1)
+      writeln("<sup class='note'>[builtin_bit_cast]</sup>");
+  }
+
   // We print the results in reverse order, so the latest one is first in the table.
-  fileIndex = 0;
   foreach_reverse (ref testFile; testFiles.tail(TABLE_LIMIT)) {
     writeln("<tr>");
     writeln("  <td>", dateFromFilename(testFile.name), "</td>");
@@ -260,7 +289,10 @@ void main(string[] args) {
     if (!testFile.regressions.empty()) {
       writeln("  <ul>");
       foreach (string t; sort(testFile.regressions)) {
-        writeln("<li>", t, "</li>");
+        auto contents = loadFile(t);
+        writeln("<li>", t);
+        addSupNotes(t);
+        writeln("</li>");
       }
       writeln("</ul>");
     }
@@ -271,18 +303,17 @@ void main(string[] args) {
     if (!testFile.fixed.empty()) {
       writeln("  <ul>");
       foreach (string t; sort(testFile.fixed)) {
-        writeln("<li>", t, "</li>");
+        auto contents = loadFile(t);
+        writeln("<li>", t);
+        addSupNotes(t);
+        writeln("</li>");
       }
       writeln("</ul>");
     }
     writeln("</td>");
 
 
-
-
-
     writeln("</tr>");
-    ++fileIndex;
   }
 
   writeln("<tr><td colspan='5'>Showing only ", TABLE_LIMIT, " datasets of ", testFiles.length, " total</td></tr>");
