@@ -59,6 +59,9 @@ immutable string preamble = "
   td {
     padding: 1em;
   }
+  .failuretable {
+     margin-top: 2em;
+  }
 
   ul {
     padding: 0 1em 0 1em;
@@ -154,13 +157,12 @@ const allConfig = {
   plugins: {
     responsive: true,
     title: {
-      display: true,
-        text: 'Zomg',
-      },
+      display: false,
     },
-    interaction: {
-      intersect: false,
-    },
+  },
+  interaction: {
+    intersect: false,
+  },
   options: {
     scales: {
       x: {
@@ -230,7 +232,7 @@ void main(string[] args) {
 
 
   writeln(
-      "<table>
+      "<table class='failuretable'>
         <tr>
           <th>Date</th>
           <th>Failures</th>
