@@ -106,6 +106,10 @@ immutable string preamble = "
     <td class='slim'>The new interpreter is correct.</td>
   </tr>
   <tr>
+    <td class='slim'><em>SemaCXX/constexpr-vector-access-elements.cpp</em></td>
+    <td class='slim'>The new interpreter is correct.</td>
+  </tr>
+  <tr>
     <td class='slim'><em>CodeGenObjC/encode-test-4.m</em></td>
     <td class='slim'>Comparison against @encode is unspecified.</td>
   </tr>

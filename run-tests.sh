@@ -30,21 +30,12 @@ rm -f ../clang/test/CodeGenCXX/cxx11-initializer-aggregate.cpp
 
 rm -f ../clang/test/SemaCXX/constant-expression-cxx14.cpp
 rm -f ../clang/test/SemaCXX/aggregate-initialization.cpp
-rm -f ../clang/test/SemaCXX/constant-expression-cxx2a.cpp
 rm -f ../clang/test/SemaCXX/constexpr-function-recovery-crash.cpp
-
-
-
-# These fail even without any of our changes.
-rm -f ../clang/test/Analysis/scan-build/{cxx-name,deduplication,exclude_directories,help,html_output,plist_html_output,plist_output,silence-core-checkers}.test
-rm -f ../clang/test/Analysis/scan-build/rebuild_index/rebuild_index.test
-
-
-
 
 
 # We are correct.
 rm -f ../clang/test/SemaCXX/source_location.cpp
+rm -f ../clang/test/SemaCXX/constexpr-vectors-access-elements.cpp
 
 # Comparing string pointers for equality is unspecified
 rm -rf ../clang/test/CodeGenObjC/encode-test-4.m
