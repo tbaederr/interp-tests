@@ -21,7 +21,7 @@ CC=clang CXX=clang++ LDFLAGS="-fuse-ld=lld" \
 #### Excluded tests
 
 # These fail because we rely on them NOT using the new interpreter.
-rm -rf ../clang/test/AST/Interp
+rm -rf ../clang/test/AST/ByteCode
 
 
 # Needs array fillers
