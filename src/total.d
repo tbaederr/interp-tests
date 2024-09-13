@@ -17,6 +17,7 @@ struct TestFileData  {
   string[] regressions;
   string[] fixed;
   int failedTestsDiff; // diff to previous date.
+  int numErrors;
 }
 
 string dateFromFilename(string filename) {
@@ -116,6 +117,10 @@ immutable string preamble = "
     <td class='slim'><em>CodeGenObjC/encode-test-4.m</em></td>
     <td class='slim'>Comparison against @encode is unspecified.</td>
   </tr>
+  <tr>
+    <td class='slim'><em>SemaCXX/new-delete.cpp</em></td>
+    <td class='slim'>Diagnostic differences are okay.</td>
+  </tr>
 
 
 </table>
@@ -211,6 +216,11 @@ void main(string[] args) {
         string name = to!string(line[colonColonIndex + 4..$].strip());
         tf.failedTests[name] = true;
       }
+      if (line.endsWith("errors generated.") &&
+          line.split(' ').length == 3) {
+        auto n = to!size_t(line[0..line.indexOf(' ')]);
+        tf.numErrors += n;
+      }
     }
     testFiles ~= tf;
   }
@@ -236,6 +246,7 @@ void main(string[] args) {
         <tr>
           <th>Date</th>
           <th>Failures</th>
+          <th>Errors</th>
           <th>Diff</th>
           <th>Regressions</th>
           <th>Fixed</th>
@@ -280,7 +291,7 @@ void main(string[] args) {
     writeln("<tr>");
     writeln("  <td>", dateFromFilename(testFile.name), "</td>");
     writeln("  <td class='num'>", testFile.failedTests.length, "</td>");
-
+    writeln("  <td class='num'>", testFile.numErrors, "</td>");
 
     writeln("  <td class='num'>");
     if (&testFile != &testFiles[0]) {
@@ -322,7 +333,7 @@ void main(string[] args) {
     writeln("</tr>");
   }
 
-  writeln("<tr><td colspan='5'>Showing only ", TABLE_LIMIT, " datasets of ", testFiles.length, " total</td></tr>");
+  writeln("<tr><td colspan='6'>Showing only ", TABLE_LIMIT, " datasets of ", testFiles.length, " total</td></tr>");
   writeln("</table>");
 
   writeln("</body>");

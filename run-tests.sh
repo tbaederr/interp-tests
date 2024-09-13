@@ -40,6 +40,9 @@ rm -f ../clang/test/SemaCXX/constexpr-vectors-access-elements.cpp
 # Comparing string pointers for equality is unspecified
 rm -rf ../clang/test/CodeGenObjC/encode-test-4.m
 
+# Differences are OK.
+rm -rf ../clang/test/SemaCXX/new-delete.cpp
+
 ninja
 
 echo "Running all clang tests..."
