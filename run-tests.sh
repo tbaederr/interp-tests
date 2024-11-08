@@ -42,6 +42,8 @@ rm -rf ../clang/test/CodeGenObjC/encode-test-4.m
 
 # Differences are OK.
 rm -rf ../clang/test/SemaCXX/new-delete.cpp
+rm -rf ../clang/test/SemaCXX/builtin-std-move.cpp
+
 
 ninja
 

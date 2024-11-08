@@ -121,6 +121,10 @@ immutable string preamble = "
     <td class='slim'><em>SemaCXX/new-delete.cpp</em></td>
     <td class='slim'>Diagnostic differences are okay.</td>
   </tr>
+  <tr>
+    <td class='slim'><em>SemaCXX/builtin-std-move.cpp</em></td>
+    <td class='slim'>Diagnostic differences are okay.</td>
+  </tr>
 
 
 </table>
