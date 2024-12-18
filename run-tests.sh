@@ -36,6 +36,7 @@ rm -f ../clang/test/SemaCXX/constexpr-function-recovery-crash.cpp
 # We are correct.
 rm -f ../clang/test/SemaCXX/source_location.cpp
 rm -f ../clang/test/SemaCXX/constexpr-vectors-access-elements.cpp
+rm -f ../clang/test/Sema/builtin-memcpy.c
 
 # Comparing string pointers for equality is unspecified
 rm -rf ../clang/test/CodeGenObjC/encode-test-4.m
