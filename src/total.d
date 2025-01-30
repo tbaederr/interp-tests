@@ -13,11 +13,17 @@ immutable string CLANG_TEST_BASE_DIR = "/home/tbaeder/code/llvm-project/clang/te
 
 struct TestFileData  {
   string name;
-  bool[string] failedTests;
+  bool[string] failedClangTests;
+  bool[string] failedLibcxxTests;
+
   string[] regressions;
   string[] fixed;
   int failedTestsDiff; // diff to previous date.
   int numErrors;
+
+  size_t numFailedTests() const {
+    return failedClangTests.length + failedLibcxxTests.length;
+  }
 }
 
 string dateFromFilename(string filename) {
@@ -156,10 +162,18 @@ const allData = {
   datasets: [
     {
       label: 'check-clang',
-      data: [ALL_DATA],
+      data: [CLANG_DATA],
       stepped: true,
-      backgroundColor: '#7ED7C1',
-      borderColor: 'green',
+      borderColor: '#003f5c',
+
+      backgroundColor: '#009ee6',
+    },
+    {
+      label: 'check-cxx',
+      data: [LIBCXX_DATA],
+      stepped: true,
+      borderColor: '#ffa600',
+      backgroundColor: '#ffce72',
     },
   ],
 };
@@ -177,6 +191,7 @@ const allConfig = {
     intersect: false,
   },
   options: {
+    stacked: false,
     scales: {
       x: {
         display: true,
@@ -218,11 +233,15 @@ void main(string[] args) {
     tf.name = file;
 
     foreach(line; File(file).byLine()) {
-      if (line.strip().startsWith("Clang :: ") || 
+      if (line.strip().startsWith("Clang :: ") ||
           line.strip().startsWith("Clang-Unit :: ")) {
         auto colonColonIndex = line.indexOf(" :: ");
         string name = to!string(line[colonColonIndex + 4..$].strip());
-        tf.failedTests[name] = true;
+        tf.failedClangTests[name] = true;
+      } else if (line.strip().startsWith("llvm-libc++-shared.cfg.in ::")) {
+        auto colonColonIndex = line.indexOf(" :: ");
+        string name = to!string(line[colonColonIndex + 4..$].strip());
+        tf.failedLibcxxTests[name] = true;
       }
       if (line.endsWith("errors generated.") &&
           line.split(' ').length == 3) {
@@ -240,14 +259,17 @@ void main(string[] args) {
   }
 
   // Data string.
-  string data;
+  string clangData;
   foreach (ref t; testFiles) {
-    data ~= to!string(t.failedTests.length) ~ ", ";
+    clangData ~= to!string(t.failedClangTests.length) ~ ", ";
   }
 
+  string libcxxData;
+  foreach (ref t; testFiles) {
+    libcxxData ~= to!string(t.failedLibcxxTests.length) ~ ", ";
+  }
 
-  writeln(preamble.replace("ALL_LABELS", labels).replace("ALL_DATA", data));
-
+  writeln(preamble.replace("ALL_LABELS", labels).replace("CLANG_DATA", clangData).replace("LIBCXX_DATA", libcxxData));
 
   writeln(
       "<table class='failuretable'>
@@ -267,18 +289,26 @@ void main(string[] args) {
   foreach (ref testFile; testFiles.drop(1)) {
     const TestFileData* prev = &testFiles[fileIndex - 1];
 
-    foreach (ref test; testFile.failedTests.keys) {
-      if (test !in prev.failedTests)
+    foreach (ref test; testFile.failedClangTests.keys) {
+      if (test !in prev.failedClangTests)
+        testFile.regressions ~= test;
+    }
+    foreach (ref test; testFile.failedLibcxxTests.keys) {
+      if (test !in prev.failedLibcxxTests)
         testFile.regressions ~= test;
     }
 
     // fixed tests
-    foreach (ref test; prev.failedTests.keys) {
-      if (test !in testFile.failedTests)
+    foreach (ref test; prev.failedClangTests.keys) {
+      if (test !in testFile.failedClangTests)
+        testFile.fixed ~= test;
+    }
+    foreach (ref test; prev.failedLibcxxTests.keys) {
+      if (test !in testFile.failedLibcxxTests)
         testFile.fixed ~= test;
     }
 
-    testFile.failedTestsDiff = cast(int)testFile.failedTests.length - cast(int)prev.failedTests.length;
+    testFile.failedTestsDiff = cast(int)testFile.numFailedTests() - cast(int)prev.numFailedTests();
     ++fileIndex;
   }
 
@@ -298,7 +328,7 @@ void main(string[] args) {
   foreach_reverse (ref testFile; testFiles.tail(TABLE_LIMIT)) {
     writeln("<tr>");
     writeln("  <td>", dateFromFilename(testFile.name), "</td>");
-    writeln("  <td class='num'>", testFile.failedTests.length, "</td>");
+    writeln("  <td class='num'>", testFile.numFailedTests(), "</td>");
     writeln("  <td class='num'>", testFile.numErrors, "</td>");
 
     writeln("  <td class='num'>");

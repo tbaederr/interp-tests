@@ -3,6 +3,9 @@
 
 git clone https://github.com/llvm/llvm-project --depth=1
 cd llvm-project
+
+rm -rf build
+
 mkdir build
 cd build
 
@@ -13,7 +16,9 @@ CC=clang CXX=clang++ LDFLAGS="-fuse-ld=lld" \
   cmake ../llvm \
   -GNinja \
   -DCMAKE_BUILD_TYPE=Debug \
-  -DLLVM_ENABLE_PROJECTS=clang
+  -DLLVM_ENABLE_PROJECTS=clang \
+  -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi" \
+  -DLIBCXXABI_USE_LLVM_UNWINDER=OFF
 
 
 
@@ -50,5 +55,9 @@ ninja
 
 echo "Running all clang tests..."
 ninja check-clang > out.txt 2>&1
+
+echo "Running all libc++ tests..."
+ninja check-cxx >> out.txt 2>&1
+
 
 echo "DONE"
