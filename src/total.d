@@ -9,15 +9,24 @@ import std.conv : to;
 
 immutable int TABLE_LIMIT = 5;
 immutable string CLANG_TEST_BASE_DIR = "/home/tbaeder/code/llvm-project/clang/test/";
+immutable string LIBCXX_TEST_BASE_DIR = "/home/tbaeder/code/llvm-project/libcxx/test/";
 
+struct Test {
+  string file;
+  bool isLibcxx;
+  bool opCmp(ref Test Other) {
+    return Other.file < file;
+  }
+  string toString() { return file; }
+}
 
 struct TestFileData  {
   string name;
   bool[string] failedClangTests;
   bool[string] failedLibcxxTests;
 
-  string[] regressions;
-  string[] fixed;
+  Test[] regressions;
+  Test[] fixed;
   int failedTestsDiff; // diff to previous date.
   int numErrors;
 
@@ -32,10 +41,14 @@ string dateFromFilename(string filename) {
   return filename;
 }
 
-string loadFile(string filename) {
+string loadFile(ref Test t) {
   try {
-    return readText(CLANG_TEST_BASE_DIR ~ filename);
+    if (t.isLibcxx)
+      return readText(LIBCXX_TEST_BASE_DIR ~ t.file);
+    else
+      return readText(CLANG_TEST_BASE_DIR ~ t.file);
   } catch(Throwable) {
+    stderr.writeln("Couldn't load ", CLANG_TEST_BASE_DIR ~ t.file);
     return "";
   }
 }
@@ -291,37 +304,82 @@ void main(string[] args) {
 
     foreach (ref test; testFile.failedClangTests.keys) {
       if (test !in prev.failedClangTests)
-        testFile.regressions ~= test;
+        testFile.regressions ~= Test(test, false);
     }
     foreach (ref test; testFile.failedLibcxxTests.keys) {
       if (test !in prev.failedLibcxxTests)
-        testFile.regressions ~= test;
+        testFile.regressions ~= Test(test, true);
     }
 
     // fixed tests
     foreach (ref test; prev.failedClangTests.keys) {
       if (test !in testFile.failedClangTests)
-        testFile.fixed ~= test;
+        testFile.fixed ~= Test(test, false);
     }
     foreach (ref test; prev.failedLibcxxTests.keys) {
       if (test !in testFile.failedLibcxxTests)
-        testFile.fixed ~= test;
+        testFile.fixed ~= Test(test, true);
     }
 
     testFile.failedTestsDiff = cast(int)testFile.numFailedTests() - cast(int)prev.numFailedTests();
     ++fileIndex;
   }
 
+  string getTestOutput(ref Test test, ref TestFileData testFile) {
+    /* stderr.writeln("test output: ", testFile.name); */
+    /* stderr.writeln("Checking for ", test.file); */
 
-  void addSupNotes(string filename) {
-    auto contents = loadFile(filename);
+    auto lines = File(testFile.name).byLineCopy.array();
+    string result;
+    /* stderr.writeln(lines); */
+
+    for(size_t i = 0; i != lines.length; ++i) {
+      string line = lines[i];
+      void advance() { ++i; line = lines[i]; }
+      if (line.startsWith("FAIL:")) {
+        size_t colonColonIndex = line.indexOf(":: ");
+        if (colonColonIndex == cast(size_t)-1)
+          continue;
+
+        auto testName = line[colonColonIndex + 3..line.indexOf(' ', colonColonIndex + 3)];
+        if (testName != test.file) {
+          continue;
+        }
+        // Fine the next line that's just "--", that's where the output starts.
+        while (line != "--")
+          advance();
+
+        // Skip the start line.
+        advance();
+        // The next -- line is the end of the output.
+        while (line != "--" && line != "") {
+          result ~= line ~ "\n";
+          advance();
+        }
+      }
+
+    }
+    return result;
+  }
+
+  void addSupNotes(ref Test test, ref TestFileData testFile) {
+    auto contents = loadFile(test);
+    auto testOutput = getTestOutput(test, testFile);
+
+    if (test.file == "std/utilities/variant/variant.get/get_index.pass.cpp") {
+      stderr.writeln("############################################################");
+      stderr.writeln(testOutput);
+    }
 
     if (contents.indexOf("-fexperimental-new-constant-interpreter") != -1)
       writeln("<sup class='hardfail'>[Explicit Test]</sup>");
-    if (contents.indexOf("__builtin_constant_p") != -1)
+    if (contents.indexOf("__builtin_constant_p") != -1 ||
+        testOutput.indexOf("_LIBCPP_ASSERT_VALID_INPUT_RANGE") != -1)
       writeln("<sup class='note'>[builtin_constant_p]</sup>");
     if (contents.indexOf("__builtin_bit_cast") != -1)
       writeln("<sup class='note'>[builtin_bit_cast]</sup>");
+    if (testOutput.indexOf("PLEASE submit a bug report") != -1)
+      writeln("<sup class='hardfail'>[Crash]</sup>");
   }
 
   // We print the results in reverse order, so the latest one is first in the table.
@@ -343,10 +401,9 @@ void main(string[] args) {
     writeln("<td>");
     if (!testFile.regressions.empty()) {
       writeln("  <ul>");
-      foreach (string t; sort(testFile.regressions)) {
-        auto contents = loadFile(t);
+      foreach (ref Test t; sort(testFile.regressions)) {
         writeln("<li>", t);
-        addSupNotes(t);
+        addSupNotes(t, testFile);
         writeln("</li>");
       }
       writeln("</ul>");
@@ -357,10 +414,9 @@ void main(string[] args) {
     writeln("<td>");
     if (!testFile.fixed.empty()) {
       writeln("  <ul>");
-      foreach (string t; sort(testFile.fixed)) {
-        auto contents = loadFile(t);
+      foreach (ref Test t; sort(testFile.fixed)) {
         writeln("<li>", t);
-        addSupNotes(t);
+        addSupNotes(t, testFile);
         writeln("</li>");
       }
       writeln("</ul>");
