@@ -137,6 +137,10 @@ immutable string preamble = "
     <td class='slim'>The new interpreter is correct.</td>
   </tr>
   <tr>
+    <td class='slim'><em>SemaTemplate/temp_arg_nontype_cxx20.cpp</em></td>
+    <td class='slim'>The new interpreter is correct.</td>
+  </tr>
+  <tr>
     <td class='slim'><em>CodeGenObjC/encode-test-4.m</em></td>
     <td class='slim'>Comparison against @encode is unspecified.</td>
   </tr>
@@ -146,6 +150,10 @@ immutable string preamble = "
   </tr>
   <tr>
     <td class='slim'><em>SemaCXX/builtin-std-move.cpp</em></td>
+    <td class='slim'>Diagnostic differences are okay.</td>
+  </tr>
+  <tr>
+    <td class='slim'><em>SemaTemplate/temp_arg_nontype_cxx2c.cpp</em></td>
     <td class='slim'>Diagnostic differences are okay.</td>
   </tr>
 
@@ -378,8 +386,11 @@ void main(string[] args) {
       writeln("<sup class='note'>[builtin_constant_p]</sup>");
     if (contents.indexOf("__builtin_bit_cast") != -1)
       writeln("<sup class='note'>[builtin_bit_cast]</sup>");
+
     if (testOutput.indexOf("PLEASE submit a bug report") != -1)
       writeln("<sup class='hardfail'>[Crash]</sup>");
+    if (testOutput.indexOf("-filler:") != -1)
+      writeln("<sup class='note'>[array fillers]</sup>");
   }
 
   // We print the results in reverse order, so the latest one is first in the table.

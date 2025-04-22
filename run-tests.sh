@@ -45,6 +45,7 @@ rm -f ../clang/test/SemaCXX/constexpr-function-recovery-crash.cpp
 rm -f ../clang/test/SemaCXX/source_location.cpp
 rm -f ../clang/test/SemaCXX/constexpr-vectors-access-elements.cpp
 rm -f ../clang/test/Sema/builtin-memcpy.c
+rm -f ../clang/test/SemaTemplate/temp_arg_nontype_cxx20.cpp
 
 # Comparing string pointers for equality is unspecified
 rm -rf ../clang/test/CodeGenObjC/encode-test-4.m
@@ -52,6 +53,8 @@ rm -rf ../clang/test/CodeGenObjC/encode-test-4.m
 # Differences are OK.
 rm -rf ../clang/test/SemaCXX/new-delete.cpp
 rm -rf ../clang/test/SemaCXX/builtin-std-move.cpp
+rm -rf ../clang/test/SemaTemplate/temp_arg_nontype_cxx2c.cpp
+
 
 
 ninja
