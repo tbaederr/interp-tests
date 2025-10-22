@@ -265,8 +265,8 @@ void main(string[] args) {
         tf.failedLibcxxTests[name] = true;
       }
       if (line.endsWith("errors generated.") &&
-          line.split(' ').length == 3) {
-        auto n = to!size_t(line[0..line.indexOf(' ')]);
+          (line.split(' ').length == 3 || line.split(' ').length == 5)) {
+        auto n = to!size_t(line.replace("# | ", "")[0..line.replace("# | ", "").indexOf(' ')]);
         tf.numErrors += n;
       }
     }

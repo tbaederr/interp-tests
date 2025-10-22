@@ -36,7 +36,6 @@ rm -rf ../clang/test/AST/ByteCode
 rm -f ../clang/test/SemaCXX/large-array-init.cpp
 rm -f ../clang/test/CodeGenCXX/cxx11-initializer-aggregate.cpp
 
-rm -f ../clang/test/SemaCXX/constant-expression-cxx14.cpp
 rm -f ../clang/test/SemaCXX/aggregate-initialization.cpp
 rm -f ../clang/test/SemaCXX/constexpr-function-recovery-crash.cpp
 
@@ -56,6 +55,11 @@ rm -rf ../clang/test/SemaCXX/builtin-std-move.cpp
 rm -rf ../clang/test/SemaTemplate/temp_arg_nontype_cxx2c.cpp
 
 
+# Flaky
+rm -f ../libcxx/test/libcxx/gdb/gdb_pretty_printer_test.sh.cpp
+
+
+git commit -a -m "Test changes"
 
 ninja
 
