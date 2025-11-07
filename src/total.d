@@ -29,6 +29,8 @@ struct TestFileData  {
   Test[] fixed;
   int failedTestsDiff; // diff to previous date.
   int numErrors;
+  ulong[string] errors;
+  int[string] errorDiff;
 
   size_t numFailedTests() const {
     return failedClangTests.length + failedLibcxxTests.length;
@@ -51,6 +53,14 @@ string loadFile(ref Test t) {
     stderr.writeln("Couldn't load ", CLANG_TEST_BASE_DIR ~ t.file);
     return "";
   }
+}
+
+string getDiffCss(int num) {
+  if (num < 0)
+    return "neg";
+  if (num > 0)
+    return "pos";
+  return "neutral";
 }
 
 immutable string preamble = "
@@ -94,6 +104,7 @@ immutable string preamble = "
   .neg {
     color: #FF6D31;
   }
+  .neutral {}
   .num {
     text-align: center;
   }
@@ -253,7 +264,14 @@ void main(string[] args) {
     TestFileData tf;
     tf.name = file;
 
+    string currentFile = "";
     foreach(line; File(file).byLine()) {
+      if (line.strip().startsWith("FAIL: Clang :: ") ||
+          line.strip().startsWith("FAIL: Clang-Unit :: ")) {
+        auto colonColonIndex = line.indexOf("::");
+        currentFile = to!string(line[colonColonIndex+3..line.indexOf(' ', colonColonIndex+3)]);
+      }
+
       if (line.strip().startsWith("Clang :: ") ||
           line.strip().startsWith("Clang-Unit :: ")) {
         auto colonColonIndex = line.indexOf(" :: ");
@@ -268,6 +286,7 @@ void main(string[] args) {
           (line.split(' ').length == 3 || line.split(' ').length == 5)) {
         auto n = to!size_t(line.replace("# | ", "")[0..line.replace("# | ", "").indexOf(' ')]);
         tf.numErrors += n;
+        tf.errors[currentFile] = n;
       }
     }
     testFiles ~= tf;
@@ -297,8 +316,8 @@ void main(string[] args) {
         <tr>
           <th>Date</th>
           <th>Failures</th>
-          <th>Errors</th>
           <th>Diff</th>
+          <th>Errors</th>
           <th>Regressions</th>
           <th>Fixed</th>
         </tr>
@@ -317,6 +336,15 @@ void main(string[] args) {
     foreach (ref test; testFile.failedLibcxxTests.keys) {
       if (test !in prev.failedLibcxxTests)
         testFile.regressions ~= Test(test, true);
+    }
+
+    // Errors.
+    foreach (ref errorFile; testFile.errors.keys()) {
+      if (errorFile in prev.errors) {
+        if (testFile.errors[errorFile] != prev.errors[errorFile]) {
+          testFile.errorDiff[errorFile] = to!int(testFile.errors[errorFile]) - to!int(prev.errors[errorFile]) ;
+        }
+      }
     }
 
     // fixed tests
@@ -374,11 +402,6 @@ void main(string[] args) {
     auto contents = loadFile(test);
     auto testOutput = getTestOutput(test, testFile);
 
-    if (test.file == "std/utilities/variant/variant.get/get_index.pass.cpp") {
-      stderr.writeln("############################################################");
-      stderr.writeln(testOutput);
-    }
-
     if (contents.indexOf("-fexperimental-new-constant-interpreter") != -1)
       writeln("<sup class='hardfail'>[Explicit Test]</sup>");
     if (contents.indexOf("__builtin_constant_p") != -1 ||
@@ -398,15 +421,34 @@ void main(string[] args) {
     writeln("<tr>");
     writeln("  <td>", dateFromFilename(testFile.name), "</td>");
     writeln("  <td class='num'>", testFile.numFailedTests(), "</td>");
-    writeln("  <td class='num'>", testFile.numErrors, "</td>");
 
+    // Test case diff.
     writeln("  <td class='num'>");
     if (&testFile != &testFiles[0]) {
-      writeln("<span class='", (testFile.failedTestsDiff < 0 ? "pos" : "neg"), "'>");
+      writeln("<span class='", getDiffCss(testFile.failedTestsDiff), "'>");
       writeln(testFile.failedTestsDiff);
       writeln("</span>");
     }
     writeln("  </td>");
+
+
+    // Per-testcase error numbers.
+    writeln("<td>");
+    if (!testFile.errorDiff.empty()) {
+      writeln("<ul>");
+      foreach(errorFile; testFile.errorDiff.keys()) {
+        int n = testFile.errorDiff[errorFile];
+        write("<li>", errorFile, ": ");
+        writeln("<span class='", getDiffCss(n), "'>");
+        if (n > 0) write("+");
+        writeln(testFile.errorDiff[errorFile], "</span>");
+        writeln("</li>");
+      }
+      writeln("</ul>");
+    }
+    writeln("</td>");
+
+
 
     // Print regressions.
     writeln("<td>");
