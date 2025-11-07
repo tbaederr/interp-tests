@@ -57,9 +57,9 @@ string loadFile(ref Test t) {
 
 string getDiffCss(int num) {
   if (num < 0)
-    return "neg";
-  if (num > 0)
     return "pos";
+  if (num > 0)
+    return "neg";
   return "neutral";
 }
 
