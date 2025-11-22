@@ -121,55 +121,14 @@ immutable string preamble = "
     margin-right: 0.3em;
     font-size: 70%;
   }
+  .table-margin {
+    margin-top: 2em;
+  }
 </style>
 <body>
   <h1>Test failures</h1>
 
-<table>
-  <tr>
-    <th colspan='2'>Allowlist</th>
-  </tr>
-  <tr>
-    <th>Test</th>
-    <th>Reason</th>
-  </tr>
 
-  <!-- ------>
-  <tr>
-    <td class='slim'><em>SemaCXX/source_location.cpp</em></td>
-    <td class='slim'>The new interpreter is correct.</td>
-  </tr>
-  <tr>
-    <td class='slim'><em>SemaCXX/constexpr-vector-access-elements.cpp</em></td>
-    <td class='slim'>The new interpreter is correct.</td>
-  </tr>
-  <tr>
-    <td class='slim'><em>Sema/builtin-memcpy.c</em></td>
-    <td class='slim'>The new interpreter is correct.</td>
-  </tr>
-  <tr>
-    <td class='slim'><em>SemaTemplate/temp_arg_nontype_cxx20.cpp</em></td>
-    <td class='slim'>The new interpreter is correct.</td>
-  </tr>
-  <tr>
-    <td class='slim'><em>CodeGenObjC/encode-test-4.m</em></td>
-    <td class='slim'>Comparison against @encode is unspecified.</td>
-  </tr>
-  <tr>
-    <td class='slim'><em>SemaCXX/new-delete.cpp</em></td>
-    <td class='slim'>Diagnostic differences are okay.</td>
-  </tr>
-  <tr>
-    <td class='slim'><em>SemaCXX/builtin-std-move.cpp</em></td>
-    <td class='slim'>Diagnostic differences are okay.</td>
-  </tr>
-  <tr>
-    <td class='slim'><em>SemaTemplate/temp_arg_nontype_cxx2c.cpp</em></td>
-    <td class='slim'>Diagnostic differences are okay.</td>
-  </tr>
-
-
-</table>
 
 <p>
 <a href='https://github.com/tbaederr/interp-tests'>Source Code</a>
@@ -247,6 +206,7 @@ const allConfig = {
 
 new Chart(\"allChart\", allConfig);
 </script>
+
 ";
 
 
@@ -482,6 +442,52 @@ void main(string[] args) {
 
   writeln("<tr><td colspan='6'>Showing only ", TABLE_LIMIT, " datasets of ", testFiles.length, " total</td></tr>");
   writeln("</table>");
+
+writeln("
+<table class='table-margin'>
+  <tr>
+    <th colspan='2'>Allowlist</th>
+  </tr>
+  <tr>
+    <th>Test</th>
+    <th>Reason</th>
+  </tr>
+
+  <!-- ------>
+  <tr>
+    <td class='slim'><em>SemaCXX/source_location.cpp</em></td>
+    <td class='slim'>The new interpreter is correct.</td>
+  </tr>
+  <tr>
+    <td class='slim'><em>SemaCXX/constexpr-vector-access-elements.cpp</em></td>
+    <td class='slim'>The new interpreter is correct.</td>
+  </tr>
+  <tr>
+    <td class='slim'><em>Sema/builtin-memcpy.c</em></td>
+    <td class='slim'>The new interpreter is correct.</td>
+  </tr>
+  <tr>
+    <td class='slim'><em>SemaTemplate/temp_arg_nontype_cxx20.cpp</em></td>
+    <td class='slim'>The new interpreter is correct.</td>
+  </tr>
+  <tr>
+    <td class='slim'><em>CodeGenObjC/encode-test-4.m</em></td>
+    <td class='slim'>Comparison against @encode is unspecified.</td>
+  </tr>
+  <tr>
+    <td class='slim'><em>SemaCXX/new-delete.cpp</em></td>
+    <td class='slim'>Diagnostic differences are okay.</td>
+  </tr>
+  <tr>
+    <td class='slim'><em>SemaCXX/builtin-std-move.cpp</em></td>
+    <td class='slim'>Diagnostic differences are okay.</td>
+  </tr>
+  <tr>
+    <td class='slim'><em>SemaTemplate/temp_arg_nontype_cxx2c.cpp</em></td>
+    <td class='slim'>Diagnostic differences are okay.</td>
+  </tr>
+</table>
+");
 
   writeln("</body>");
   writeln("</html>");
