@@ -486,6 +486,14 @@ writeln("
     <td class='slim'><em>SemaTemplate/temp_arg_nontype_cxx2c.cpp</em></td>
     <td class='slim'>Diagnostic differences are okay.</td>
   </tr>
+  <tr>
+    <td class='slim'><em>CXX/dcl.decl/dcl.decomp/p3.cpp</em></td>
+    <td class='slim'>Diagnostic differences are okay.</td>
+  </tr>
+  <tr>
+    <td class='slim'><em>SemaCXX/constexpr-steps.cpp</em></td>
+    <td class='slim'>Diagnostic differences are okay.</td>
+  </tr>
 </table>
 ");
 

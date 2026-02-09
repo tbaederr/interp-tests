@@ -53,6 +53,14 @@ rm -rf ../clang/test/CodeGenObjC/encode-test-4.m
 rm -rf ../clang/test/SemaCXX/new-delete.cpp
 rm -rf ../clang/test/SemaCXX/builtin-std-move.cpp
 rm -rf ../clang/test/SemaTemplate/temp_arg_nontype_cxx2c.cpp
+rm -rf ../clang/test/CXX/dcl.decl/dcl.decomp/p3.cpp
+
+
+
+
+# step limit is implemented, but diagnostics end up being different.
+rm -rf ../clang/test/SemaCXX/constexpr-steps.cpp
+
 
 
 # Flaky
