@@ -133,7 +133,7 @@ immutable string preamble = "
 <p>
 <a href='https://github.com/tbaederr/interp-tests'>Source Code</a>
 </p>
-<canvas id=\"allChart\" style=\"width:100%; max-width:900px\"></canvas>
+<canvas id=\"allChart\" style=\"width:100%; max-width:100em;\"></canvas>
 
 <script>
 
@@ -244,7 +244,8 @@ void main(string[] args) {
       }
       if (line.endsWith("errors generated.") &&
           (line.split(' ').length == 3 || line.split(' ').length == 5)) {
-        auto n = to!size_t(line.replace("# | ", "")[0..line.replace("# | ", "").indexOf(' ')]);
+        auto repl = line.replace("# | ", "");
+        auto n = to!size_t(repl[0..repl.indexOf(' ')]);
         tf.numErrors += n;
         tf.errors[currentFile] = n;
       }

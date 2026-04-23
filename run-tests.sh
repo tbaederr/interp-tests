@@ -15,7 +15,8 @@ sed -i 's/EnableNewConstInterp(C.getLangOpts().EnableNewConstInterp)/EnableNewCo
 CC=clang CXX=clang++ LDFLAGS="-fuse-ld=lld" \
   cmake ../llvm \
   -GNinja \
-  -DCMAKE_BUILD_TYPE=Debug \
+  -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+  -DLLVM_ENABLE_ASSERTIONS=ON \
   -DLLVM_ENABLE_PROJECTS=clang \
   -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi" \
   -DLIBCXXABI_USE_LLVM_UNWINDER=OFF \
@@ -61,6 +62,9 @@ rm -rf ../clang/test/CXX/dcl.decl/dcl.decomp/p3.cpp
 # step limit is implemented, but diagnostics end up being different.
 rm -rf ../clang/test/SemaCXX/constexpr-steps.cpp
 
+
+# XFAIL because of the current interpreter.
+rm -rf ../clang/test/SemaHLSL/Types/InitListConstantExpr.hlsl
 
 
 # Flaky
