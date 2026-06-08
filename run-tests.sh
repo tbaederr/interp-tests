@@ -22,7 +22,8 @@ CC=clang CXX=clang++ LDFLAGS="-fuse-ld=lld" \
   -DLIBCXXABI_USE_LLVM_UNWINDER=OFF \
   -DLLVM_BUILD_LLVM_DYLIB=ON \
   -DLLVM_LINK_LLVM_DYLIB=ON \
-  -DCLANG_LINK_CLANG_DYLIB=ON
+  -DCLANG_LINK_CLANG_DYLIB=ON \
+  -DCLANG_USE_EXPERIMENTAL_CONST_INTERP=ON
 
 
 
@@ -61,14 +62,18 @@ rm -rf ../clang/test/CXX/dcl.decl/dcl.decomp/p3.cpp
 
 # step limit is implemented, but diagnostics end up being different.
 rm -rf ../clang/test/SemaCXX/constexpr-steps.cpp
+rm -rf ../clang/test/SemaCXX/cxx2a-constexpr-dynalloc-limits.cpp
 
 
 # XFAIL because of the current interpreter.
 rm -rf ../clang/test/SemaHLSL/Types/InitListConstantExpr.hlsl
 
-
 # Flaky
 rm -f ../libcxx/test/libcxx/gdb/gdb_pretty_printer_test.sh.cpp
+
+# Diagnostic differences because the current interpreter can't handle
+# CK_VectorSplat casts as lvalues.
+rm -f ../clang/test/SemaHLSL/Language/ConstexprVectorCasts.hlsl
 
 
 git commit -a -m "Test changes"
