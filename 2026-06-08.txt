@@ -3676,28 +3676,6 @@ Command Output (stdout):
 
 ********************
 Testing:  0.. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.
-FAIL: Clang :: SemaCXX/constexpr-builtin-bit-cast.cpp (21515 of 24915)
-******************** TEST 'Clang :: SemaCXX/constexpr-builtin-bit-cast.cpp' FAILED ********************
-Exit Code: 1
-
-Command Output (stdout):
---
-# RUN: at line 1
-/home/fedora/interp-tests/llvm-project/build/bin/clang -cc1 -internal-isystem /home/fedora/interp-tests/llvm-project/build/lib/clang/23/include -nostdsysteminc -verify -std=c++2a -fsyntax-only -triple x86_64-apple-macosx10.14.0 /home/fedora/interp-tests/llvm-project/clang/test/SemaCXX/constexpr-builtin-bit-cast.cpp
-# executed command: /home/fedora/interp-tests/llvm-project/build/bin/clang -cc1 -internal-isystem /home/fedora/interp-tests/llvm-project/build/lib/clang/23/include -nostdsysteminc -verify -std=c++2a -fsyntax-only -triple x86_64-apple-macosx10.14.0 /home/fedora/interp-tests/llvm-project/clang/test/SemaCXX/constexpr-builtin-bit-cast.cpp
-# .---command stderr------------
-# | error: 'expected-error' diagnostics expected but not seen: 
-# |   File /home/fedora/interp-tests/llvm-project/clang/test/SemaCXX/constexpr-builtin-bit-cast.cpp Line 156 (directive at /home/fedora/interp-tests/llvm-project/clang/test/SemaCXX/constexpr-builtin-bit-cast.cpp:154): constexpr variable 'g' must be initialized by a constant expression
-# | error: 'expected-note' diagnostics expected but not seen: 
-# |   File /home/fedora/interp-tests/llvm-project/clang/test/SemaCXX/constexpr-builtin-bit-cast.cpp Line 156 (directive at /home/fedora/interp-tests/llvm-project/clang/test/SemaCXX/constexpr-builtin-bit-cast.cpp:155): constexpr bit_cast involving bit-field is not yet supported
-# | 2 errors generated.
-# `-----------------------------
-# error: command failed with exit status: 1
-
---
-
-********************
-Testing:  0.. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.
 FAIL: Clang :: SemaCXX/constexpr-printing.cpp (21518 of 24915)
 ******************** TEST 'Clang :: SemaCXX/constexpr-printing.cpp' FAILED ********************
 Exit Code: 1

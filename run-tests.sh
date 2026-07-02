@@ -75,6 +75,8 @@ rm -f ../libcxx/test/libcxx/gdb/gdb_pretty_printer_test.sh.cpp
 # CK_VectorSplat casts as lvalues.
 rm -f ../clang/test/SemaHLSL/Language/ConstexprVectorCasts.hlsl
 
+# We support bitcasts with bitfields.
+rm -rf ../clang/test/SemaCXX/constexpr-builtin-bit-cast.cpp
 
 git commit -a -m "Test changes"
 
