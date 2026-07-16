@@ -279,6 +279,38 @@ def compare_tests(file1_tests: Dict[str, str], file2_tests: Dict[str, str]) -> T
     return fixed_tests, broken_tests, still_failing, only_in_file1, only_in_file2
 
 
+def parse_ignore_list(filepath: Path) -> Dict[str, str]:
+    """
+    Parse an ignore list file.
+    Format: test_name = reason for ignoring
+    Lines starting with # are comments, empty lines are skipped.
+    Returns a dictionary mapping test names to reasons.
+    """
+    ignore_list = {}
+
+    if not filepath.exists():
+        return ignore_list
+
+    with open(filepath, 'r', encoding='utf-8') as f:
+        for line_num, line in enumerate(f, 1):
+            line = line.strip()
+
+            # Skip comments and empty lines
+            if not line or line.startswith('#'):
+                continue
+
+            # Parse key = value format
+            if '=' in line:
+                parts = line.split('=', 1)
+                test_name = parts[0].strip()
+                reason = parts[1].strip() if len(parts) > 1 else "No reason provided"
+                ignore_list[test_name] = reason
+            else:
+                print(f"Warning: Ignoring malformed line {line_num} in ignore list: {line}")
+
+    return ignore_list
+
+
 def find_dated_files(directory: Path) -> List[Path]:
     """Find all files matching YYYY-MM-DD.txt pattern in directory."""
     import re
@@ -315,8 +347,12 @@ def categorize_test_suite(test_name: str) -> str:
 
 def generate_multi_file_html(all_pairs: List[Tuple[Path, Path, Dict, Dict, Dict, Set, Set, Dict, Dict, Set, Dict, Dict]],
                              display_pairs: List[Tuple[Path, Path, Dict, Dict, Dict, Set, Set, Dict, Dict, Set, Dict, Dict]],
-                             total_pairs: int) -> str:
+                             total_pairs: int,
+                             ignore_list: Dict[str, str] = None) -> str:
     """Generate HTML report for multiple file comparisons."""
+
+    if ignore_list is None:
+        ignore_list = {}
 
     html = """<!DOCTYPE html>
 <html>
@@ -748,6 +784,9 @@ def generate_multi_file_html(all_pairs: List[Tuple[Path, Path, Dict, Dict, Dict,
     </script>
 """
 
+    # Collect all ignored tests across all display_pairs
+    all_ignored_tests = set()
+
     # Generate content for each file pair (only display_pairs)
     for (file1_path, file2_path, fixed_tests, broken_tests, still_failing,
          only_in_file1, only_in_file2, file1_tests, file2_tests, verify_tests,
@@ -800,12 +839,18 @@ def generate_multi_file_html(all_pairs: List[Tuple[Path, Path, Dict, Dict, Dict,
 
         # Add broken (new) tests
         for test in broken_tests.keys():
+            if test in ignore_list:
+                all_ignored_tests.add((test, ignore_list[test]))
+                continue
             status2 = broken_tests[test][1]  # Get the current status
             tests_to_display.append((test, 'new', status2))
 
         # Add still failing tests with changed diagnostics
         if still_failing:
             for test in still_failing.keys():
+                if test in ignore_list:
+                    all_ignored_tests.add((test, ignore_list[test]))
+                    continue
                 if (test in verify_tests and
                     test in file1_diagnostics and
                     test in file2_diagnostics):
@@ -954,6 +999,28 @@ def generate_multi_file_html(all_pairs: List[Tuple[Path, Path, Dict, Dict, Dict,
     </div>
 """
 
+    # Show ignored tests section once at the end if any tests were ignored
+    if all_ignored_tests:
+        html += f"""
+    <div class="file-comparison" style="margin-top: 20px;">
+        <div class="comparison-header" style="color: #6c757d;">
+            Ignored Tests
+            <span class="test-count">({len(all_ignored_tests)} test(s) filtered from output)</span>
+        </div>
+        <div class="test-section">
+            <ul class="test-list">
+"""
+        for test, reason in sorted(all_ignored_tests):
+            html += f"""                <li class="test-item" style="background-color: #f8f9fa; border-left: 4px solid #6c757d; color: #6c757d;">
+                    {test}
+                    <span style="font-style: italic; margin-left: 10px; font-size: 0.9em;">({reason})</span>
+                </li>
+"""
+        html += """            </ul>
+        </div>
+    </div>
+"""
+
     # Add a note about showing only the most recent results at the bottom
     if total_pairs > len(display_pairs):
         html += f"""
@@ -986,6 +1053,11 @@ def main():
         default='stats.html',
         help='Output HTML file (default: stats.html)'
     )
+    parser.add_argument(
+        '-i', '--ignore-list',
+        default='ignore.txt',
+        help='Ignore list file with tests to exclude (default: ignore.txt)'
+    )
 
     args = parser.parse_args()
     directory = Path(args.directory)
@@ -997,6 +1069,17 @@ def main():
     if not directory.is_dir():
         print(f"Error: '{directory}' is not a directory")
         sys.exit(1)
+
+    # Load ignore list
+    ignore_list_path = Path(args.ignore_list)
+    ignore_list = parse_ignore_list(ignore_list_path)
+    if ignore_list:
+        print(f"Loaded ignore list from {ignore_list_path}: {len(ignore_list)} test(s) to ignore")
+    else:
+        if ignore_list_path.exists():
+            print(f"Ignore list file {ignore_list_path} is empty")
+        else:
+            print(f"No ignore list found at {ignore_list_path}")
 
     print(f"Scanning directory: {directory}")
     dated_files = find_dated_files(directory)
@@ -1039,7 +1122,7 @@ def main():
     display_pairs = all_pairs[:5]
     total_pairs = len(all_pairs)
 
-    html = generate_multi_file_html(all_pairs, display_pairs, total_pairs)
+    html = generate_multi_file_html(all_pairs, display_pairs, total_pairs, ignore_list)
 
     output_file = Path(args.output)
     with open(output_file, 'w', encoding='utf-8') as f:

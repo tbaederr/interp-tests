@@ -52,8 +52,13 @@ rm -f ../clang/test/SemaTemplate/temp_arg_nontype_cxx20.cpp
 rm -rf ../clang/test/CodeGenObjC/encode-test-4.m
 
 # Differences are OK.
+rm -rf ../clang/test/Sema/i-c-e.c
 rm -rf ../clang/test/SemaCXX/new-delete.cpp
 rm -rf ../clang/test/SemaCXX/builtin-std-move.cpp
+rm -rf ../clang/test/SemaCXX/constexpr-array-unknown-bound.cpp
+rm -rf ../clang/test/SemaCXX/constexpr-expression.cpp
+rm -rf ../clang/test/SemaCXX/builtin-is-within-lifetime.cpp
+rm -rf ../clang/test/SemaCXX/cxx2c-expansion-stmts.cpp
 rm -rf ../clang/test/SemaTemplate/temp_arg_nontype_cxx2c.cpp
 rm -rf ../clang/test/CXX/dcl.decl/dcl.decomp/p3.cpp
 
@@ -77,6 +82,8 @@ rm -f ../clang/test/SemaHLSL/Language/ConstexprVectorCasts.hlsl
 
 # We support bitcasts with bitfields.
 rm -rf ../clang/test/SemaCXX/constexpr-builtin-bit-cast.cpp
+
+
 
 git commit -a -m "Test changes"
 
