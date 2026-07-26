@@ -9,9 +9,6 @@ rm -rf build
 mkdir build
 cd build
 
-sed -i 's/EnableNewConstInterp(C.getLangOpts().EnableNewConstInterp)/EnableNewConstInterp(true)/g' ../clang/lib/AST/ExprConstant.cpp
-
-
 CC=clang CXX=clang++ LDFLAGS="-fuse-ld=lld" \
   cmake ../llvm \
   -GNinja \
@@ -23,6 +20,7 @@ CC=clang CXX=clang++ LDFLAGS="-fuse-ld=lld" \
   -DLLVM_BUILD_LLVM_DYLIB=ON \
   -DLLVM_LINK_LLVM_DYLIB=ON \
   -DCLANG_LINK_CLANG_DYLIB=ON \
+  -DCLANG_ENABLE_STATIC_ANALYZER=ON \
   -DCLANG_USE_EXPERIMENTAL_CONST_INTERP=ON
 
 
@@ -56,7 +54,7 @@ rm -rf ../clang/test/Sema/i-c-e.c
 rm -rf ../clang/test/SemaCXX/new-delete.cpp
 rm -rf ../clang/test/SemaCXX/builtin-std-move.cpp
 rm -rf ../clang/test/SemaCXX/constexpr-array-unknown-bound.cpp
-rm -rf ../clang/test/SemaCXX/constexpr-expression.cpp
+rm -rf ../clang/test/SemaCXX/constant-expression.cpp
 rm -rf ../clang/test/SemaCXX/builtin-is-within-lifetime.cpp
 rm -rf ../clang/test/SemaCXX/cxx2c-expansion-stmts.cpp
 rm -rf ../clang/test/SemaTemplate/temp_arg_nontype_cxx2c.cpp
