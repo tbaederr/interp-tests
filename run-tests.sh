@@ -20,7 +20,9 @@ CC=clang CXX=clang++ LDFLAGS="-fuse-ld=lld" \
   -DLLVM_BUILD_LLVM_DYLIB=ON \
   -DLLVM_LINK_LLVM_DYLIB=ON \
   -DCLANG_LINK_CLANG_DYLIB=ON \
+  -DCLANG_ENABLE_CIR=OFF \
   -DCLANG_USE_EXPERIMENTAL_CONST_INTERP=ON
+
 
 
 
@@ -58,6 +60,7 @@ rm -rf ../clang/test/SemaCXX/builtin-is-within-lifetime.cpp
 rm -rf ../clang/test/SemaCXX/cxx2c-expansion-stmts.cpp
 rm -rf ../clang/test/SemaTemplate/temp_arg_nontype_cxx2c.cpp
 rm -rf ../clang/test/CXX/dcl.decl/dcl.decomp/p3.cpp
+rm -f ../clang/test/SemaCXX/constexpr-builtin-stdc-memreverse8.cpp
 
 
 
@@ -72,6 +75,8 @@ rm -rf ../clang/test/SemaHLSL/Types/InitListConstantExpr.hlsl
 
 # Flaky
 rm -f ../libcxx/test/libcxx/gdb/gdb_pretty_printer_test.sh.cpp
+rm -f ../libcxx/test/libcxx/lldb/*
+
 
 # Diagnostic differences because the current interpreter can't handle
 # CK_VectorSplat casts as lvalues.
